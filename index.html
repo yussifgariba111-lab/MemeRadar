@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemeRadar | Solana Token Scanner</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: #f5f7ff;
+    }
+
+    header {
+      padding: 22px 16px;
+      background: #111a30;
+      border-bottom: 1px solid #263451;
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: bold;
+      color: #65f5b7;
+    }
+
+    .tagline {
+      color: #aab6ce;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    main {
+      max-width: 850px;
+      margin: auto;
+      padding: 22px 16px;
+    }
+
+    .card {
+      background: #121b30;
+      border: 1px solid #293751;
+      border-radius: 15px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: 19px;
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      background: #091020;
+      color: white;
+      border: 1px solid #344361;
+      border-radius: 9px;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #65f5b7;
+      color: #07140f;
+      border: none;
+      border-radius: 9px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 15px;
+      background: #0b1325;
+      border-radius: 10px;
+    }
+
+    .label {
+      color: #aab6ce;
+      font-size: 12px;
+    }
+
+    .value {
+      font-size: 19px;
+      font-weight: bold;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .muted {
+      color: #aab6ce;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .risk {
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .good {
+      background: #12392e;
+      color: #83f7c4;
+    }
+
+    .warning {
+      background: #49351a;
+      color: #ffd28a;
+    }
+
+    .bad {
+      background: #491f2b;
+      color: #ffacbb;
+    }
+
+    .token-row {
+      padding: 12px 0;
+      border-bottom: 1px solid #293751;
+    }
+
+    a {
+      color: #65f5b7;
+    }
+
+    footer {
+      text-align: center;
+      color: #8795b0;
+      padding: 25px 12px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🐋 MemeRadar</div>
+  <div class="tagline">Discover tokens. Understand risks. Research smarter.</div>
+</header>
+
+<main>
+
+  <section class="card">
+    <h2>🔎 Token Scanner</h2>
+    <p class="muted">
+      Enter a Solana token mint address to inspect its market data
+      and available risk indicators.
+    </p>
+
+    <input id="address" placeholder="Paste Solana token address">
+
+    <button id="scanBtn" onclick="scanToken()">Analyze Token</button>
+
+    <p id="status" class="muted"></p>
+  </section>
+
+  <section id="results" class="card hidden">
+    <h2 id="tokenName">Token Results</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Price</div>
+        <div class="value" id="price">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Market Cap</div>
+        <div class="value" id="marketCap">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">24h Volume</div>
+        <div class="value" id="volume">—</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Liquidity</div>
+        <div class="value" id="liquidity">—</div>
+      </div>
+    </div>
+
+    <div id="riskBox" class="risk warning"></div>
+
+    <p class="muted" id="details"></p>
+
+    <p>
+      <a id="dexLink" href="#" target="_blank" rel="noopener noreferrer">
+        View on DexScreener ↗
+      </a>
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>🆕 Trending Solana Tokens</h2>
+    <p class="muted">
+      Recent token pairs with available market data. New listings are
+      not necessarily safe or genuinely trending.
+    </p>
+
+    <button id="refreshBtn" onclick="loadTokens()">Refresh Token List</button>
+
+    <div id="tokenList" class="muted" style="margin-top:15px">
+      Tap refresh to load market data.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🛡️ What MemeRadar Checks</h2>
+    <p class="muted">
+      • Liquidity and trading volume<br>
+      • Market capitalization when available<br>
+      • Price changes and trading activity<br>
+      • Available market information<br>
+      • Warning signs that require further research
+    </p>
+    <p class="muted">
+      Market data alone cannot establish that a token is safe.
+      Always research token authorities, holder concentration,
+      liquidity security, and the possibility of scams.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  MemeRadar · Independent research tool · Not financial advice
+</footer>
+
+<script>
+  const API = "https://api.dexscreener.com";
+
+  function money(value) {
+    if (value === null || value === undefined || !Number.isFinite(Number(value))) {
+      return "N/A";
+    }
+
+    value = Number(value);
+
+    if (value >= 1e9) return "$" + (value / 1e9).toFixed(2) + "B";
+    if (value >= 1e6) return "$" + (value / 1e6).toFixed(2) + "M";
+    if (value >= 1e3) return "$" + (value / 1e3).toFixed(2) + "K";
+
+    return "$" + value.toFixed(value < 1 ? 6 : 2);
+  }
+
+  function setStatus(message) {
+    document.getElementById("status").textContent = message;
+  }
+
+  function assessRisk(pair) {
+    const warnings = [];
+
+    const liquidity = Number(pair.liquidity?.usd || 0);
+    const volume = Number(pair.volume?.h24 || 0);
+    const marketCap = Number(pair.marketCap || pair.fdv || 0);
+    const changes = pair.priceChange || {};
+
+    if (liquidity <= 0) {
+      warnings.push("Liquidity data is missing or unavailable.");
+    } else if (liquidity < 10000) {
+      warnings.push("Low reported liquidity may increase price impact.");
+    }
+
+    if (volume <= 0) {
+      warnings.push("No reported 24-hour trading volume.");
+    }
+
+    if (marketCap <= 0) {
+      warnings.push("Market capitalization is unavailable.");
+    }
+
+    if (liquidity > 0 && volume > liquidity * 10) {
+      warnings.push("Very high volume relative to liquidity deserves investigation.");
+    }
+
+    if (Number(changes.h24) <= -30) {
+      warnings.push("The reported 24-hour price change is sharply negative.");
+    }
+
+    if (warnings.length >= 3) {
+      return {
+        title: "⚠️ Multiple warning signs",
+        text: warnings,
+        className: "bad"
+      };
+    }
+
+    if (warnings.length > 0) {
+      return {
+        title: "⚠️ Further research needed",
+        text: warnings,
+        className: "warning"
+      };
+    }
+
+    return {
+      title: "ℹ️ No basic market-data warning detected",
+      text: [
+        "This is not a safety certification.",
+        "Ownership, holder concentration, mint authority and liquidity security have not been verified."
+      ],
+      className: "good"
+    };
+  }
+
+  async function scanToken() {
+    const address = document.getElementById("address").value.trim();
+    const button = document.getElementById("scanBtn");
+    const results = document.getElementById("results");
+
+    if (!address) {
+      setStatus("Please enter a token mint address.");
+      return;
+    }
+
+    button.disabled = true;
+    results.classList.add("hidden");
+    setStatus("Fetching token market data...");
+
+    try {
+      const response = await fetch(
+        API + "/token-pairs/v1/solana/" + encodeURIComponent(address)
+      );
+
+      if (!response.ok) throw new Error("Market data request failed.");
+
+      const pairs = await response.json();
+
+      if (!Array.isArray(pairs) || pairs.length === 0) {
+        throw new Error("No Solana trading pairs found for this address.");
+      }
+
+      pairs.sort((a, b) =>
+        Number(b.liquidity?.usd || 0) - Number(a.liquidity?.usd || 0)
+      );
+
+      const pair = pairs[0];
+
+      document.getElementById("tokenName").textContent =
+        (pair.baseToken?.name || "Unknown Token") +
+        " (" + (pair.baseToken?.symbol || "N/A") + ")";
+
+      document.getElementById("price").textContent =
+        money(pair.priceUsd);
+
+      document.getElementById("marketCap").textContent =
+        money(pair.marketCap ?? pair.fdv);
+
+      document.getElementById("volume").textContent =
+        money(pair.volume?.h24);
+
+      document.getElementById("liquidity").textContent =
+        money(pair.liquidity?.usd);
+
+      const assessment = assessRisk(pair);
+      const riskBox = document.getElementById("riskBox");
+
+      riskBox.className = "risk " + assessment.className;
+      riskBox.replaceChildren();
+
+      const heading = document.createElement("strong");
+      heading.textContent = assessment.title;
+      riskBox.appendChild(heading);
+
+      const list = document.createElement("ul");
+
+      assessment.text.forEach(message => {
+        const item = document.createElement("li");
+        item.textContent = message;
+        list.appendChild(item);
+      });
+
+      riskBox.appendChild(list);
+
+      document.getElementById("details").textContent =
+        "Network: Solana | DEX: " + (pair.dexId || "Unknown") +
+        " | 24h change: " +
+        (pair.priceChange?.h24 ?? "N/A") + "%";
+
+      document.getElementById("dexLink").href =
+        pair.url || "https://dexscreener.com/solana/" + encodeURIComponent(address);
+
+      results.classList.remove("hidden");
+      setStatus("Analysis complete. Review the warnings before making decisions.");
+
+    } catch (error) {
+      setStatus(error.message || "Unable to retrieve token data. Try again.");
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function loadTokens() {
+    const button = document.getElementById("refreshBtn");
+    const list = document.getElementById("tokenList");
+
+    button.disabled = true;
+    list.textContent = "Loading market data...";
+
+    try {
+      const response = await fetch(API + "/latest/dex/search?q=SOL");
+      if (!response.ok) throw new Error("Could not load market data.");
+
+      const data = await response.json();
+      const pairs = (data.pairs || [])
+        .filter(pair => pair.chainId === "solana")
+        .sort((a, b) =>
+          Number(b.pairCreatedAt || 0) - Number(a.pairCreatedAt || 0)
+        )
+        .slice(0, 10);
+
+      list.replaceChildren();
+
+      if (pairs.length === 0) {
+        list.textContent = "No token pairs found. Try refreshing later.";
+        return;
+      }
+
+      pairs.forEach(pair => {
+        const row = document.createElement("div");
+        row.className = "token-row";
+
+        const title = document.createElement("strong");
+        title.textContent =
+          (pair.baseToken?.symbol || "Unknown") +
+          " · " + money(pair.marketCap ?? pair.fdv);
+
+        const info = document.createElement("div");
+        info.textContent =
+          "Liquidity: " + money(pair.liquidity?.usd) +
+          " | 24h volume: " + money(pair.volume?.h24);
+
+        const link = document.createElement("a");
+        link.href = pair.url || "#";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "View chart ↗";
+
+        row.append(title, info, document.createElement("br"), link);
+        list.appendChild(row);
+      });
+
+    } catch (error) {
+      list.textContent =
+        "Unable to load tokens. Check your connection and try again.";
+    } finally {
+      button.disabled = false;
+    }
+  }
+</script>
+
+</body>
+  </html>
